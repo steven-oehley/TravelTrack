@@ -12,6 +12,15 @@ function Logo() {
 function Form() {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [items, setItems] = useState([]);
+  // problem here - form only needs to set the items
+  // items are rendered in the PackList component :'(
+  // solution for this problem - LIFT STATE UP!
+
+  function handleAddItems(item) {
+    setItems((items) => [...items, item]);
+    // cant mutate in react - always need a new array so cant use push
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -19,7 +28,9 @@ function Form() {
     if (!description) return; // guard clause;
 
     const newItem = { description, quantity, packed: false, id: Date.now() };
-    initialItems.push(newItem);
+    // initialItems.push(newItem);
+    // not allowed to mutate state - cant push!
+    handleAddItems(newItem);
     setDescription("");
     setQuantity(1);
   }
