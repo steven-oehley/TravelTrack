@@ -1,10 +1,5 @@
 import { useState } from "react";
 
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: false },
-];
-
 function Logo() {
   return <h1>👣 Travel Track 🧳</h1>;
 }
@@ -69,19 +64,24 @@ function Form({ onAddItems }) {
   );
 }
 
-function PackList(props) {
+function PackList({ items, onDeleteItem }) {
   return (
     <div className="list">
       <ul>
-        {props.items.map((item) => (
-          <Item packingItem={item} key={item.id}></Item>
+        {items.map((item) => (
+          <Item
+            packingItem={item}
+            key={item.id}
+            onDeleteItem={onDeleteItem}
+          ></Item>
         ))}
       </ul>
     </div>
   );
 }
 
-function Item({ packingItem }) {
+function Item({ packingItem, onDeleteItem }) {
+  // onDeleteItem passed from App, to PackingList to Item
   return (
     <li>
       <span
@@ -93,7 +93,7 @@ function Item({ packingItem }) {
       >
         {packingItem.quantity} {packingItem.description}
       </span>
-      <button>&times;</button>
+      <button onClick={() => onDeleteItem(packingItem.id)}>&times;</button>
     </li>
   );
 }
@@ -114,12 +114,16 @@ export default function App() {
     // cant mutate in react - always need a new array so cant use push
   }
 
+  function handleDeleteItem(id) {
+    setItems((items) => items.filter((item) => item.id !== id));
+  }
+
   // lifted state from form
   return (
     <div className="app">
       <Logo />
       <Form onAddItems={handleAddItems} />
-      <PackList items={items} />
+      <PackList items={items} onDeleteItem={handleDeleteItem} />
       <Stats />
     </div>
   );
