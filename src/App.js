@@ -64,7 +64,7 @@ function Form({ onAddItems }) {
   );
 }
 
-function PackList({ items, onDeleteItem }) {
+function PackList({ items, onDeleteItem, onToggleItem }) {
   return (
     <div className="list">
       <ul>
@@ -73,6 +73,7 @@ function PackList({ items, onDeleteItem }) {
             packingItem={item}
             key={item.id}
             onDeleteItem={onDeleteItem}
+            onToggleItem={onToggleItem}
           ></Item>
         ))}
       </ul>
@@ -80,10 +81,16 @@ function PackList({ items, onDeleteItem }) {
   );
 }
 
-function Item({ packingItem, onDeleteItem }) {
+function Item({ packingItem, onDeleteItem, onToggleItem }) {
   // onDeleteItem passed from App, to PackingList to Item
   return (
     <li>
+      {/* add checkbox */}
+      <input
+        type="checkbox"
+        value={packingItem.packed}
+        onChange={() => onToggleItem(packingItem.id)}
+      />
       <span
         style={
           packingItem.packed
@@ -118,12 +125,24 @@ export default function App() {
     setItems((items) => items.filter((item) => item.id !== id));
   }
 
+  function handleToggleItem(id) {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
+  }
+
   // lifted state from form
   return (
     <div className="app">
       <Logo />
       <Form onAddItems={handleAddItems} />
-      <PackList items={items} onDeleteItem={handleDeleteItem} />
+      <PackList
+        items={items}
+        onDeleteItem={handleDeleteItem}
+        onToggleItem={handleToggleItem}
+      />
       <Stats />
     </div>
   );
