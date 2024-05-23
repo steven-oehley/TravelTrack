@@ -160,7 +160,10 @@ export default function App() {
   }
 
   function handleClear() {
-    setItems([]);
+    const confirmed = window.confirm(
+      "Are you sure you want to clear your packing list?"
+    );
+    if (confirmed) setItems([]);
   }
 
   return (
