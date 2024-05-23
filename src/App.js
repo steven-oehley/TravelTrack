@@ -9,18 +9,20 @@ function Logo() {
   return <h1>👣 Travel Track 🧳</h1>;
 }
 
-function Form() {
+function Form({ onAddItems }) {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [items, setItems] = useState([]);
-  // problem here - form only needs to set the items
-  // items are rendered in the PackList component :'(
-  // solution for this problem - LIFT STATE UP!
 
-  function handleAddItems(item) {
-    setItems((items) => [...items, item]);
-    // cant mutate in react - always need a new array so cant use push
-  }
+  // problem here if we have state here - form only needs to set the items
+  // items are rendered in the PackList component :'(
+  // solution for this problem - LIFT STATE UP! - lift to first common parent
+  // component tree - common parent is the App component
+  // -- App
+  //  -- -- Logo
+  //  -- -- Form
+  //  -- -- PackList
+  //  -- -- -- Item
+  //  -- -- Stats
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -30,7 +32,7 @@ function Form() {
     const newItem = { description, quantity, packed: false, id: Date.now() };
     // initialItems.push(newItem);
     // not allowed to mutate state - cant push!
-    handleAddItems(newItem);
+    onAddItems(newItem);
     setDescription("");
     setQuantity(1);
   }
@@ -42,7 +44,7 @@ function Form() {
         <select
           name=""
           id=""
-          valeu={quantity}
+          value={quantity}
           onChange={(e) => setQuantity(Number(e.target.value))}
         >
           {/* Typing out by hand will take too long if you need a lot of options, better solution -> use map */}
@@ -67,11 +69,11 @@ function Form() {
   );
 }
 
-function PackList() {
+function PackList(props) {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => (
+        {props.items.map((item) => (
           <Item packingItem={item} key={item.id}></Item>
         ))}
       </ul>
@@ -105,11 +107,19 @@ function Stats() {
 }
 
 export default function App() {
+  const [items, setItems] = useState([]);
+
+  function handleAddItems(item) {
+    setItems((items) => [...items, item]);
+    // cant mutate in react - always need a new array so cant use push
+  }
+
+  // lifted state from form
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackList />
+      <Form onAddItems={handleAddItems} />
+      <PackList items={items} />
       <Stats />
     </div>
   );
