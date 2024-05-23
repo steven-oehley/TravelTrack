@@ -65,6 +65,20 @@ function Form({ onAddItems }) {
 }
 
 function PackList({ items, onDeleteItem, onToggleItem }) {
+  const [sortBy, setSortBy] = useState("input");
+  let sortedItems;
+
+  if (sortBy === "input") sortedItems = items;
+  if (sortBy === "description")
+    sortedItems = items
+      .slice()
+      .sort((a, b) => a.description.localeCompare(b.description));
+
+  if (sortBy === "packed")
+    sortedItems = items
+      .slice()
+      .sort((a, b) => Number(a.packed) - Number(b.packed));
+
   return (
     <div className="list">
       <ul>
@@ -77,6 +91,15 @@ function PackList({ items, onDeleteItem, onToggleItem }) {
           ></Item>
         ))}
       </ul>
+      <div className="actions">
+        {/* transorm into controlled element */}
+        {/* three steps - state, give value state value, connect to an onChange*/}
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <option value="input">Sort by - Input Order</option>
+          <option value="description">Sort by - Description</option>
+          <option value="packed">Sort by - Packed Status</option>
+        </select>
+      </div>
     </div>
   );
 }
@@ -105,10 +128,22 @@ function Item({ packingItem, onDeleteItem, onToggleItem }) {
   );
 }
 
-function Stats() {
+function Stats({ items }) {
+  const numItems = items.length;
+  const packedItems = items.filter((item) => item.packed === true).length;
+  const percentPacked = Math.round((packedItems / numItems) * 100);
+
   return (
     <footer className="stats">
-      You have X items on your list, you have already packed X (X%)
+      {packedItems === 0 &&
+        "Starting adding some items to your packing list! 🗒️"}
+      {percentPacked < 100 &&
+        packedItems > 0 &&
+        `You have ${numItems} items on your list, you have 
+      ${
+        packedItems > 0 ? "already packed " + packedItems : "packed no"
+      } items (${packedItems > 0 ? percentPacked : 0}% packed)`}
+      {percentPacked === 100 && "All packed and ready to go! ✈️ 🌴"}
     </footer>
   );
 }
@@ -143,7 +178,7 @@ export default function App() {
         onDeleteItem={handleDeleteItem}
         onToggleItem={handleToggleItem}
       />
-      <Stats />
+      <Stats items={items} />
     </div>
   );
 }
